@@ -16,11 +16,20 @@ def compute_gradient(X, y, w, b):
     dj_dw = np.zeros((n, ))
     dj_db = 0
     
-    for i in range(m):
-        error = (np.dot(X[i], w) + b) - y[i]
-        for j in range(n):
-            dj_dw[j] += error * X[i, j]
-        dj_db += error
+    for i in range(n): 
+        for j in range(m):
+            error = (np.dot(X[j], w) + b) - y[j]
+            if i == 0:
+                dj_db += error
+            dj_dw[i] += error * X[j,i]
+            
+    dj_dw /= m
+    dj_db /= m
+        
+    return dj_dw, dj_db
+            
+            
+            
     
     dj_dw /= m
     dj_db /= m
