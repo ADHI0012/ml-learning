@@ -37,13 +37,17 @@ def compute_gradient(X,y,w,b):
 def gradient_descent(X, y, w_in, b_in, num_iters, alpha):
     w = w_in
     b = b_in
+    J_history = []
     for i in range(num_iters):
         dj_dw, dj_db = compute_gradient(X, y, w, b)
         w = w - alpha * dj_dw
         b = b - alpha * dj_db
         
+        cost = compute_cost(X,y,w,b)
+        J_history.append(cost)
+        
     
-    return w, b
+    return w, b, J_history
 
 
 X_train = np.array([[0.5, 1.5], [1,1], [1.5, 0.5], [3, 0.5], [2, 2], [1, 2.5]])  
@@ -53,9 +57,16 @@ b_temp = 0.
 alpha = 0.1
 iters = 10000
 
-w,b = gradient_descent(X_train, y_train, w_temp, b_temp, iters, alpha)
+w,b, J_history = gradient_descent(X_train, y_train, w_temp, b_temp, iters, alpha)
 
 print(f"The value of W: {w}")
 print(f"The value of b: {b}")
 
-print(compute_cost(X_train, y_train, w, b))
+plt.figure(figsize=(8,5))
+plt.plot(J_history, color="blue", linewidth=2)
+plt.title("Cost J vs. Iterations")
+plt.xlabel("Iterations")
+plt.ylabel("Cost J")
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.show()
+
