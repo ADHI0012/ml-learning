@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
-def compute_cost(X,y,w,b):
-    m = X.shape[0]
+def compute_cost(X,y,w,b,lambda_):
+    m,n = X.shape
     cost = 0.0
     
     for i in range(m):
@@ -14,10 +14,19 @@ def compute_cost(X,y,w,b):
         f_wb_i = sigmoid(z_i)
         cost += -y[i] * np.log(f_wb_i) - (1-y[i]) * np.log(1-f_wb_i)
         
-    cost /= m   
-    return cost
+    cost /= m
+    
+    reg_cost = 0
+    
+    for i in range(n):
+        reg_cost += w[i] ** 2
+        
+    reg_cost = reg_cost * (lambda_/(2*m))
+        
+    total_cost = cost + reg_cost
+    return total_cost
 
-def compute_gradient(X,y,w,b):
+def compute_gradient(X,y,w,b,lambda_):
     m,n = X.shape
     dj_dw = np.zeros((n, ))
     dj_db = 0.0
@@ -32,18 +41,21 @@ def compute_gradient(X,y,w,b):
     dj_dw /= m
     dj_db /= m
     
+    for i in range(n):
+        dj_dw[i] += (lambda_/m) * w[i]
+    
     return dj_dw, dj_db
 
-def gradient_descent(X, y, w_in, b_in, num_iters, alpha):
+def gradient_descent(X, y, w_in, b_in, num_iters, alpha, lambda_):
     w = w_in
     b = b_in
     J_history = []
     for i in range(num_iters):
-        dj_dw, dj_db = compute_gradient(X, y, w, b)
+        dj_dw, dj_db = compute_gradient(X, y, w, b, lambda_)
         w = w - alpha * dj_dw
         b = b - alpha * dj_db
         
-        cost = compute_cost(X,y,w,b)
+        cost = compute_cost(X,y,w,b,lambda_)
         J_history.append(cost)
         
     
@@ -55,9 +67,10 @@ y_train = np.array([0, 0, 0, 1, 1, 1])
 w_temp  = np.zeros_like(X_train[0])
 b_temp = 0.
 alpha = 0.1
+lambda_ = 0.7
 iters = 10000
 
-w,b, J_history = gradient_descent(X_train, y_train, w_temp, b_temp, iters, alpha)
+w,b, J_history = gradient_descent(X_train, y_train, w_temp, b_temp, iters, alpha, lambda_)
 
 print(f"The value of W: {w}")
 print(f"The value of b: {b}")
