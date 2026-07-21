@@ -1,18 +1,25 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def compute_cost(X, y, w, b):
-    m = X.shape[0]
+def compute_cost(X, y, w, b, lambda_=1):
+    m,n = X.shape
     cost = 0
     
     for i in range(m):
         f_wb_i = np.dot(X[i], w) + b
         cost += (f_wb_i - y[i]) ** 2
+    cost = cost / (2 * m)
         
-    total_cost = cost / (2 * m)
+    reg_cost = 0.0
+    
+    for i in range(n):
+        reg_cost += w[i] ** 2
+    reg_cost = reg_cost * (lambda_ / (2 * m))
+        
+    total_cost = cost + reg_cost
     return total_cost
 
-def compute_gradient(X, y, w, b):
+def compute_gradient(X, y, w, b, lambda_=1):
     m,n = X.shape
     dj_dw = np.zeros((n, ))
     dj_db = 0
@@ -26,6 +33,9 @@ def compute_gradient(X, y, w, b):
             
     dj_dw /= m
     dj_db /= m
+    
+    for i in range(n):
+        dj_dw[i] = dj_dw[i] + (lambda_/m) * w[i]
         
     return dj_dw, dj_db
             
@@ -35,17 +45,17 @@ def compute_gradient(X, y, w, b):
 
 
 
-def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, num_iters):
+def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, num_iters, lambda_):
     w = w_in
     b = b_in
     J_history = []
     for i in range(num_iters):
-        dj_dw, dj_db = gradient_function(X, y, w, b)
+        dj_dw, dj_db = gradient_function(X, y, w, b, lambda_)
         
         w = w - alpha * dj_dw
         b = b - alpha * dj_db
         
-        cost = cost_function(X,y,w,b)
+        cost = cost_function(X,y,w,b, lambda_)
         J_history.append(cost)
         
     return w, b, J_history
@@ -70,13 +80,13 @@ print(X_norm)
 
 y_train = np.array([460, 232, 178])
 iterations = 1000
-initial_w, initial_b = np.array([0,0,0,0]), 0.
-alpha = 5.0e-7
-
+initial_w, initial_b = np.array([0.0,0.0,0.0,0]), 0.
+alpha = 0.01
+lambda_ = 0.7
 
 final_w, final_b, J_history = gradient_descent(X_norm, y_train, initial_w, initial_b,
                                                     compute_cost, compute_gradient, 
-                                                    alpha, iterations)
+                                                    alpha, iterations, lambda_)
 
 for w in final_w:
     print(f"{w: 0.2f}", end=" ")
